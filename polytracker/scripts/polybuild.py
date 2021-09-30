@@ -182,6 +182,9 @@ def modify_exec_args(argv: List[str]):
     else:
         compile_command.append("gclang")
 
+    if XRAY_BUILD:
+        compile_command.extend(["-fxray-instrument", "-fxray-instruction-threshold=1"])
+
     building: bool = is_building(argv)
     linking: bool = is_linking(argv)
     if building:
@@ -486,6 +489,15 @@ def main():
                         help="Specify additional ignore lists to Polytracker")
     if len(sys.argv) <= 1:
         return
+
+    if '--xray-instrument-target' in sys.argv:
+        parser.add_argument('--xray-instrument-target',
+                            action="store_true", help="for instrumentation")
+
+    if '--xray-lower-bitcode' in sys.argv:
+        parser.add_argument('--xray-lower-bitcode',
+                            action="store_true", help="for instrumentation")
+
     # Case 1, just instrument bitcode.
     if sys.argv[1] == "--instrument-bitcode":
         args = parser.parse_args(sys.argv[1:])
